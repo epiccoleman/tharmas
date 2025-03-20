@@ -1,0 +1,27 @@
+services:
+  haproxy:
+    image: haproxy:2.4
+    container_name: haproxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./config:/usr/local/etc/haproxy
+    networks:
+      - medianet
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN  # Required for HAProxy to bind to ports < 1024
+
+  nginx:
+    image: nginx:alpine
+    container_name: static
+    volumes:
+      - ./config/index.html:/usr/share/nginx/html/index.html:ro
+    networks:
+      - medianet
+    restart: unless-stopped
+
+networks:
+  medianet:
+    name: medianet
+    external: true  # Use the existing network from media services
