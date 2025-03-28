@@ -1,0 +1,87 @@
+services:
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    environment:
+      - PUID="${PUID}"
+      - PGID="${PGID}"
+      - TZ="${TZ}"
+      - JELLYFIN_PublishedServerUrl="${JELLYFIN_PUBLISHED_SERVER_URL}"
+    volumes:
+      - "${CONFIG_ROOT}/jellyfin:/config"
+      - "${MEDIA_ROOT}/media:/data/media"
+    ports:
+      - "8096:8096"
+      - "8920:8920"
+      - "7359:7359/udp"
+      - "1900:1900/udp"
+    networks:
+      - medianet
+    restart: unless-stopped
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    ports:
+      - "8080:8080"
+    volumes:
+      - "${CONFIG_ROOT}/sabnzbd:/config"
+      - "${MEDIA_ROOT}/usenet:/data/usenet"
+    environment:
+      TZ: "${TZ}"
+      PUID: "${PUID}"
+      PGID: "${PGID}"
+    networks:
+      - medianet
+    restart: unless-stopped
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    ports:
+      - "8989:8989"
+    volumes:
+      - "${CONFIG_ROOT}/sonarr:/config"
+      - "${MEDIA_ROOT}:/data"
+    environment:
+      TZ: "${TZ}"
+      PUID: "${PUID}"
+      PGID: "${PGID}"
+    networks:
+      - medianet
+    restart: unless-stopped
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    ports:
+      - "7878:7878"
+    volumes:
+      - "${CONFIG_ROOT}/radarr:/config"
+      - "${MEDIA_ROOT}:/data"
+    environment:
+      TZ: "${TZ}"
+      PUID: "${PUID}"
+      PGID: "${PGID}"
+    networks:
+      - medianet
+    restart: unless-stopped
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    ports:
+      - "8686:8686"
+    volumes:
+      - "${CONFIG_ROOT}/lidarr:/config"
+      - "${MEDIA_ROOT}:/data"
+    environment:
+      TZ: "${TZ}"
+      PUID: "${PUID}"
+      PGID: "${PGID}"
+    networks:
+      - medianet
+    restart: unless-stopped
+networks:
+  medianet:
+    name: medianet
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.0.0/24
