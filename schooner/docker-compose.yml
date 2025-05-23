@@ -3,10 +3,10 @@ services:
     image: lscr.io/linuxserver/jellyfin:latest
     container_name: jellyfin
     environment:
-      - PUID="${PUID}"
-      - PGID="${PGID}"
-      - TZ="${TZ}"
-      - JELLYFIN_PublishedServerUrl="${JELLYFIN_PUBLISHED_SERVER_URL}"
+      PUID: "${PUID}"
+      PGID: "${PGID}"
+      TZ: "${TZ}"
+      JELLYFIN_PublishedServerUrl: "${JELLYFIN_PUBLISHED_SERVER_URL}"
     volumes:
       - "${CONFIG_ROOT}/jellyfin:/config"
       - "${MEDIA_ROOT}/media:/data/media"
@@ -78,6 +78,41 @@ services:
     networks:
       - medianet
     restart: unless-stopped
+  calibre-web-automated:
+    image: crocodilestick/calibre-web-automated:latest
+    container_name: calibre-web-automated
+    environment:
+      PUID: "${PUID}"
+      PGID: "${PGID}"
+      TZ: "${TZ}"
+    volumes:
+      - "${CONFIG_ROOT}/calibre-web-automated:/config"
+      - "${MEDIA_ROOT}/calibre-ingest:/cwa-book-ingest" # ingest dir - books that go here get processed and added to the library
+      - "${MEDIA_ROOT}/media/books:/calibre-library" # library dir
+    ports:
+      - "8083:8083"
+    networks:
+      - medianet
+    restart: unless-stopped
+  calibre-web-automated-book-downloader:
+    image: ghcr.io/calibrain/calibre-web-automated-book-downloader:latest
+    container_name: calibre-web-automated-book-downloader
+    environment:
+      FLASK_PORT: 8084
+      LOG_LEVEL: info
+      BOOK_LANGUAGE: en
+      USE_BOOK_TITLE: true
+      TZ: ${TZ}
+      APP_ENV: prod
+      UID: "${PUID}"
+      GID: "${PGID}"
+    ports:
+      - "8084:8084"
+    networks:
+      - medianet
+    restart: unless-stopped
+    volumes:
+      - "${MEDIA_ROOT}/calibre-ingest:/cwa-book-ingest" # ingest dir from calibre-web-automated, so that downloaded books get auto-added to the library
 networks:
   medianet:
     name: medianet

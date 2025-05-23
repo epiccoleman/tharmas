@@ -2,7 +2,7 @@
 
 Docker Compose setup for a home media server with Jellyfin, Sonarr, Radarr, Lidarr, and SABnzbd.
 
-Use the .env file to set up the various variables in the docker-compose.yml. Mine's committed if you need an example.
+Use the .env file to set up the various variables in the docker-compose.yml. Mine's committed if you need an example. (there's nothing secret in there, so it's fine - but you'll almost certainly need to change the values unless you're _really_ committed to aping my stylo).
 
 This is a README, not a _GUIDE_, and is not written to be totally noob-proof. It's mostly just here for me if I need to jog my memory. If you want something a little more hand-holdy, go check out [trash-guides.info](https://trash-guides.info/), or dig around on reddit. But if you're halfway savvy, this might save you some time getting your own stuff set up.
 
@@ -36,10 +36,10 @@ This is a README, not a _GUIDE_, and is not written to be totally noob-proof. It
    ```bash
    # configs, swap in the right CONFIG_ROOT for wherever you're putting container config volumes:
    (CONFIG_ROOT=foo; mkdir -p ${CONFIG_ROOT}/{sonarr,radarr,lidarr,sabnzbd,jellyfin})
-   sudo chown -r media:media ${MEDIA_}
+   sudo chown -r media:media ${MEDIA_ROOT}
    ```
 
-3a. Ensure media drive is mounted, fstab entry set up, funny name, all that jazz. Then, see below for info on setting up dir structure.
+3a. Ensure media drive is mounted, fstab entry set up, punny name, all that jazz. Then, see below for info on setting up dir structure.
 
 3b. If you like, you can run the following to make all your directories the way I did:
 ```
@@ -102,7 +102,7 @@ Access services at:
 ### Sabnzbd
 Go through the little wizard, set up access creds, etc.
 
-Open settings, do a coupla three things:
+Open settings, do a [coupla three things](https://getyarn.io/yarn-clip/d07f8355-500d-4c0e-9f94-c128768ff272):
 - Servers tab: Add your Usenet Server Creds (or multiples)
 - Special tab: Add `sabnzbd` to the hostname whitelist at the bottom (this lets the other containers talk to sabnzbd over the Docker `medianet` network)
 - General tab: Turn off "Launch browser at startup" (because you're running this headless, like a l33t d00d.)
