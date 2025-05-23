@@ -4,7 +4,7 @@ Docker Compose setup for a home media server with Jellyfin, Sonarr, Radarr, Lida
 
 Use the .env file to set up the various variables in the docker-compose.yml. Mine's committed if you need an example. (there's nothing secret in there, so it's fine - but you'll almost certainly need to change the values unless you're _really_ committed to aping my stylo).
 
-This is a README, not a _GUIDE_, and is not written to be totally noob-proof. It's mostly just here for me if I need to jog my memory. If you want something a little more hand-holdy, go check out [trash-guides.info](https://trash-guides.info/), or dig around on reddit. But if you're halfway savvy, this might save you some time getting your own stuff set up.
+This is a README, not a _GUIDE_, and is not written to be totally noob-proof. It's mostly just here for me if I need to jog my memory. If you want something a little more hand-holdy, go check out [trash-guides.info](https://trash-guides.info/), or dig around on reddit. But if you're halfway [savvy](https://www.youtube.com/watch?v=dQw4w9WgXcQ), this might save you some time getting your own stuff set up.
 
 ## Services
 
@@ -13,6 +13,8 @@ This is a README, not a _GUIDE_, and is not written to be totally noob-proof. It
 - **Radarr** (7878): Movie management
 - **Lidarr** (8686): Music management
 - **SABnzbd** (8080): Usenet downloader
+- **Calibre-Web** (8083): Book management
+- **Calibre-Web-Automated-Downloader** (8084): Book downloader
 
 ## Prerequisites
 
@@ -35,7 +37,7 @@ This is a README, not a _GUIDE_, and is not written to be totally noob-proof. It
 2. Create config directories:
    ```bash
    # configs, swap in the right CONFIG_ROOT for wherever you're putting container config volumes:
-   (CONFIG_ROOT=foo; mkdir -p ${CONFIG_ROOT}/{sonarr,radarr,lidarr,sabnzbd,jellyfin})
+   (CONFIG_ROOT=foo; mkdir -p ${CONFIG_ROOT}/{sonarr,radarr,lidarr,sabnzbd,jellyfin,calibre-web})
    sudo chown -r media:media ${MEDIA_ROOT}
    ```
 
@@ -45,7 +47,7 @@ This is a README, not a _GUIDE_, and is not written to be totally noob-proof. It
 ```
 
 # media stuff, swap in the right MEDIA_ROOT for wherever you're putting media:
-(MEDIA_ROOT=foo; mkdir -p $MEDIA_ROOT/{torrents,usenet,media} $MEDIA_ROOT/torrents/{books,movies,music,tv} $MEDIA_ROOT/usenet/{incomplete,complete} $MEDIA_ROOT/usenet/complete/{books,movies,music,tv} $MEDIA_ROOT/media/{books,movies,music,tv})
+(MEDIA_ROOT=foo; mkdir -p $MEDIA_ROOT/{torrents,usenet,media} $MEDIA_ROOT/torrents/{books,movies,music,tv} $MEDIA_ROOT/usenet/{incomplete,complete} $MEDIA_ROOT/usenet/complete/{books,movies,music,tv} $MEDIA_ROOT/media/{books,movies,music,tv}, mkdir -p $MEDIA_ROOT/calibre-ingest)
 ```
 
 Again, make sure the ownership on these is set appropriately. For me this meant chown'ing the directories with media:media (my media user).
@@ -72,11 +74,12 @@ Again, make sure the ownership on these is set appropriately. For me this meant 
    │       ├── movies
    │       ├── music
    │       └── tv
-   └── media
-      ├── books
-      ├── movies
-      ├── music
-      └── tv
+   ├── media
+   │   ├── books
+   │   ├── movies
+   │   ├── music
+   │   └── tv
+   └── calibre-ingest
 ```
 
 
@@ -96,6 +99,8 @@ Access services at:
 - Radarr: http://host:7878
 - Lidarr: http://host:8686
 - SABnzbd: http://host:8080
+- Calibre-Web: http://host:8083
+- Calibre-Web-Automated-Downloader: http://host:8084
 
 ## Configuring Media Stuff
 
@@ -120,10 +125,10 @@ Add your creds from your indexer(s) (I used NZBGeek + nzb.su) in the Indexers se
 ##### Settings -> Download Clients
 Setup sabnzbd in here. Use `sabnzbd` for the host and the API key you got from your sabnbzd instance. Hit the little test button. If it doesn't work, you probably forgot to whitelist the `sabnzbd` host in the whitelist (see above).
 
-Note: Lidarr wants to use a "music" category by default. sabnzbd doesn't have one by default - instead it has "audio". You can either create a "music" category in sabnzbd, or change the category from lidarr to "audio", or just not use one. Not sure if this matters much.
+Note: Lidarr wants to use a "music" category by default. sabnzbd doesn't have one by default - instead it has "audio". You can either create a "music" category in sabnzbd, or change the category from lidarr to "audio", or just not use one. Not sure if this matters much - I haven't used lidarr all that much.
 
 ### Jellyfin
 
 You should just need to add libraries, pointed at `/data/media/movies`, `/data/media/music`, and `/data/media/tvshows`.
 
-However, it's been my experience that Jellyfin is a little fussy about libraries if the directory starts off empty. The only thing that I could figure to make it ... not fussy ... was to download something with each arr, restart Jellyfin, and re-add the library. Dumb, but whatever.
+However, it's been my experience that Jellyfin is a little fussy about libraries if the directory starts off empty. The only thing that I could figure to make it ... not fussy ... was to download something with each arr, restart Jellyfin, and re-add the library. So if you're starting fresh and having issues, you might try that.
