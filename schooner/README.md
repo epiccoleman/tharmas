@@ -1,20 +1,20 @@
 # Media Server Stack
 
-Docker Compose setup for a home media server with Jellyfin, Sonarr, Radarr, Lidarr, and SABnzbd.
+Docker Compose setup for a home media server with Jellyfin, Sonarr, Radarr, Lidarr, SABnzbd, Calibre-Web, and Calibre-Web-Automated-Downloader.
 
 Use the .env file to set up the various variables in the docker-compose.yml. Mine's committed if you need an example. (there's nothing secret in there, so it's fine - but you'll almost certainly need to change the values unless you're _really_ committed to aping my stylo).
 
-This is a README, not a _GUIDE_, and is not written to be totally noob-proof. It's mostly just here for me if I need to jog my memory. If you want something a little more hand-holdy, go check out [trash-guides.info](https://trash-guides.info/), or dig around on reddit. But if you're halfway [savvy](https://www.youtube.com/watch?v=dQw4w9WgXcQ), this might save you some time getting your own stuff set up.
+This is a README, not a _GUIDE_, and is not written to be totally noob-proof. It's mostly just here for me if I need to jog my memory. If you want something a little more hand-holdy, go check out [trash-guides.info](https://trash-guides.info/), or dig around on reddit. But if you're halfway [savvy](https://www.getyarn.io/yarn-clip/6b624dee-11cb-4791-8842-11ef3da01d19), this might save you some time getting your own stuff set up.
 
 ## Services
 
-- **Jellyfin** (8096): Media server
-- **Sonarr** (8989): TV show management
-- **Radarr** (7878): Movie management
-- **Lidarr** (8686): Music management
-- **SABnzbd** (8080): Usenet downloader
-- **Calibre-Web** (8083): Book management
-- **Calibre-Web-Automated-Downloader** (8084): Book downloader
+- **[Jellyfin](https://github.com/jellyfin/jellyfin)** (8096): Media server
+- **[Sonarr](https://github.com/Sonarr/Sonarr)** (8989): TV show management
+- **[Radarr](https://github.com/Radarr/Radarr)** (7878): Movie management
+- **[Lidarr](https://github.com/lidarr/lidarr)** (8686): Music management
+- **[SABnzbd](https://github.com/sabnzbd/sabnzbd)** (8080): Usenet downloader
+- **[Calibre-Web](https://github.com/crocodilestick/Calibre-Web-Automated)** (8083): Book management
+- **[Calibre-Web-Automated-Downloader](https://github.com/calibrain/calibre-web-automated-book-downloader)** (8084): Book downloader
 
 ## Prerequisites
 
@@ -36,7 +36,8 @@ This is a README, not a _GUIDE_, and is not written to be totally noob-proof. It
 
 2. Create config directories:
    ```bash
-   # configs, swap in the right CONFIG_ROOT for wherever you're putting container config volumes:
+   # configs, swap in the right CONFIG_ROOT for wherever you're putting container config volumes
+   # i did /docker/appdata because these don't really comply with the standard linux intentions behind /etc and /var, so
    (CONFIG_ROOT=foo; mkdir -p ${CONFIG_ROOT}/{sonarr,radarr,lidarr,sabnzbd,jellyfin,calibre-web})
    sudo chown -r media:media ${MEDIA_ROOT}
    ```
@@ -132,3 +133,23 @@ Note: Lidarr wants to use a "music" category by default. sabnzbd doesn't have on
 You should just need to add libraries, pointed at `/data/media/movies`, `/data/media/music`, and `/data/media/tvshows`.
 
 However, it's been my experience that Jellyfin is a little fussy about libraries if the directory starts off empty. The only thing that I could figure to make it ... not fussy ... was to download something with each arr, restart Jellyfin, and re-add the library. So if you're starting fresh and having issues, you might try that.
+
+### Calibre-Web
+
+This will all just basically work according to the directions at the [repo](https://github.com/crocodilestick/Calibre-Web-Automated).
+
+_Except_ if you want to use the "Send to Kindle" feature, in which case, there's a bit of pain involved with setting up the email.
+
+You _can_ do it with Gmail but that looked like a [whole pain in the ass](https://github.com/janeczku/calibre-web/wiki/Setup-Mailserver#Gmail), so I opted to set up a free account with [GMX](https://www.gmx.com/).
+
+You'll have to go into the email settings on GMX to [Enable POP3/IMAP](https://support.gmx.com/pop-imap/toggle.html), because it's off by default.
+
+Then you should be able to use the server settings [here](https://support.gmx.com/pop-imap/pop3/serverdata.html) to configure the email settings on Calibre-Web.
+
+For posterity, I ended up using: mail.gmx.com, port 587, STARTTLS encryption. The rest of the fields are self-explanatory _except_ for "from email" - it was not clear what I was supposed to put in here. Putting the email I registered seemed to work.
+
+To be able to use the little "send test email" button, you need to go into your user settings on Calibre Web (likely your admin account, unless you're getting fancier than me) and set the email.
+
+Lastly, you _must_ go add your new GMX email to the list of authorized senders in your Amazon account. At the time of writing you can get to this by going "Account -> Devices -> Preferences -> Personal Document Settings", but I'm sure Amazon will [fiddle about](https://youtu.be/AOo1uhHb-jk?si=L6TgWnKfH-0j4zlV&t=84) with these menus at some point, so, good luck I guess.
+
+If you've noticed this is all a big pain in the ass, I hear they [never have troubles, no troubles at all](https://archive.org/details/i-had-trouble-in-getting-to-sol/page/n31/mode/2up), in Kobo-land. YMMV.
