@@ -1,0 +1,44 @@
+services:
+  # caddy:
+  #   image: caddy:2
+  #   container_name: caddy
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+  #     - /var/lib/caddy:/data
+  #     - /etc/caddy:/config
+  #   networks:
+  #     - public
+  #     - medianet
+  #   restart: unless-stopped
+
+  adguardhome:
+    image: adguard/adguardhome:latest
+    container_name: adguardhome
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "3000:3000/tcp" # Web UI for setup, can be changed later
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${CONFIG_ROOT}/adguard/work:/opt/adguardhome/work
+      - ${CONFIG_ROOT}/adguard/conf:/opt/adguardhome/conf
+    networks:
+      - public
+      - medianet
+    restart: unless-stopped
+
+networks:
+  public:
+    name: public
+    external: true
+  medianet:
+    name: medianet
+    external: true
+
+volumes:
+  caddy_data:
+  caddy_config:
