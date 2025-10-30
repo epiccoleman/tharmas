@@ -94,6 +94,11 @@ services:
     networks:
       - medianet
     restart: unless-stopped
+  flaresolverr: # external cloudflare solver for automated-book-downloader, experimental
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    networks:
+      - medianet
   calibre-web-automated-book-downloader:
     image: ghcr.io/calibrain/calibre-web-automated-book-downloader:latest
     container_name: calibre-web-automated-book-downloader
@@ -106,6 +111,7 @@ services:
       APP_ENV: prod
       UID: "${PUID}"
       GID: "${PGID}"
+      EXT_BYPASSER_URL: http://flaresolverr:8191
     ports:
       - "8084:8084"
     networks:
